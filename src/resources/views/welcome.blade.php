@@ -72,6 +72,7 @@
         <p>A public sandbox for <strong>logged-cloud/page-studio</strong>, the visual page-builder Laravel package. Open the playground, drag blocks around, edit text, then preview the rendered page.</p>
         <div class="actions">
             <a class="btn" href="/playground">Open playground</a>
+            <a class="btn ghost" href="/lab">Pick a template</a>
             <a class="btn ghost" href="https://github.com/Logged-Cloud/page-studio" target="_blank" rel="noreferrer">View on GitHub</a>
         </div>
     </main>
