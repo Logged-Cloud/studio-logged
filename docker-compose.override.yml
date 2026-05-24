@@ -1,0 +1,6 @@
+services:
+  studio-logged-app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    image: studio-logged-app-local

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="256">
+      <stop offset="0" stop-color="#A78BFA"/>
+      <stop offset="1" stop-color="#5B21B6"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
+  <g fill="#ffffff">
+    <rect x="50" y="129" width="144" height="64" rx="30"/>
+    <circle cx="90" cy="129" r="34"/>
+    <circle cx="132" cy="109" r="46"/>
+    <circle cx="172" cy="133" r="34"/>
+  </g>
+  <!-- Stacked layout blocks · the page-studio canvas motif -->
+  <rect x="86" y="110" width="84" height="14" rx="4" fill="url(#bg)"/>
+  <rect x="86" y="132" width="60" height="10" rx="3" fill="url(#bg)"/>
+  <rect x="86" y="150" width="72" height="10" rx="3" fill="url(#bg)"/>
+  <rect x="86" y="168" width="42" height="14" rx="5" fill="url(#bg)"/>
+</svg>
