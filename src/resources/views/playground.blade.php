@@ -22,6 +22,7 @@
     <div class="topnav">
         <a class="brand" href="/">Studio Logged</a>
         <div class="group">
+            <a href="/lab">Templates</a>
             <a href="/preview" target="_blank">Preview ↗</a>
             <form method="POST" action="/reset" style="display:inline">@csrf
                 <button type="submit" onclick="return confirm('Reset this demo page to defaults?')">Reset demo</button>

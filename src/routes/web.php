@@ -1,27 +1,29 @@
 <?php
 
+use App\PageStudio\DemoTemplates;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Str;
 use LoggedCloud\PageStudio\Models\Page;
 
-function studio_session_page(Request $request): Page
+function studio_session_page(Request $request, ?string $templateSlug = null): Page
 {
     $key = $request->session()->get('studio_page_id');
 
     if ($key && ($page = Page::find($key))) {
+        if ($templateSlug !== null) {
+            $tpl = DemoTemplates::find($templateSlug);
+            if ($tpl) {
+                $page->blocks = ($tpl['blocks'])();
+                $page->save();
+            }
+        }
         return $page;
     }
 
-    $page = Page::create([
-        'blocks' => [
-            ['id' => 'b-'.Str::random(6), 'type' => 'heading',   'settings' => ['text' => 'Welcome to Page Studio', 'level' => 'h1', 'align' => 'center']],
-            ['id' => 'b-'.Str::random(6), 'type' => 'paragraph', 'settings' => ['text' => 'Drag, drop, edit. Your changes save to this browser session and reset when the demo prunes hourly.']],
-            ['id' => 'b-'.Str::random(6), 'type' => 'button',    'settings' => ['label' => 'Preview', 'href' => '/preview', 'variant' => 'primary']],
-        ],
-        'status' => 'draft',
-    ]);
+    $tpl    = DemoTemplates::find($templateSlug ?? 'landing') ?? DemoTemplates::find('blank');
+    $blocks = ($tpl['blocks'])();
 
+    $page = Page::create(['blocks' => $blocks, 'status' => 'draft']);
     $request->session()->put('studio_page_id', $page->id);
 
     return $page;
@@ -38,6 +40,14 @@ Route::get('/preview', function (Request $request) {
     $page = studio_session_page($request);
     return view('preview', ['page' => $page]);
 })->name('preview');
+
+Route::get('/lab', fn () => view('lab', ['templates' => DemoTemplates::all()]))->name('lab');
+
+Route::post('/lab/use/{slug}', function (Request $request, string $slug) {
+    abort_unless(DemoTemplates::find($slug), 404);
+    studio_session_page($request, $slug);
+    return redirect()->route('playground');
+})->name('lab.use');
 
 Route::post('/reset', function (Request $request) {
     $id = $request->session()->pull('studio_page_id');
