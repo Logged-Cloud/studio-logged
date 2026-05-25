@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use LoggedCloud\PageStudio\Models\Page;
 
+if (! function_exists('studio_session_page')) {
 function studio_session_page(Request $request, ?string $templateSlug = null): Page
 {
     $key = $request->session()->get('studio_page_id');
@@ -27,6 +28,7 @@ function studio_session_page(Request $request, ?string $templateSlug = null): Pa
     $request->session()->put('studio_page_id', $page->id);
 
     return $page;
+}
 }
 
 Route::get('/', fn () => view('welcome'))->name('home');
