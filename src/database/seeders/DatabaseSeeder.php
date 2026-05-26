@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             SpeciesSeeder::class,
             PreyTypeSeeder::class,
             ModelFinderDemoSeeder::class,
+            ModelFinderRouteSeeder::class,
         ]);
     }
 }
