@@ -43,9 +43,10 @@ class RoutesTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('My session page');
-        $response->assertSee('Article · /docs/{slug}');
-        $response->assertSee('Product · /products/{sku}');
-        $response->assertSee('Customer · /customers/{email}');
+        $response->assertSee('Article · text manipulation graph');
+        $response->assertSee('Product · math + currency graph');
+        $response->assertSee('Customer · split + concat graph');
+        $response->assertSee('Vintage photo · image pipeline graph');
     }
 
     public function test_playground_with_page_query_param_mounts_against_that_demo_page(): void
