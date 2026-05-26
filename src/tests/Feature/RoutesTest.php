@@ -66,4 +66,31 @@ class RoutesTest extends TestCase
         $preview = $this->get('/preview');
         $preview->assertSeeText('A visual page-builder for Laravel');
     }
+
+    public function test_landing_template_feature_columns_actually_render_their_content(): void
+    {
+        // Regression · the Landing template used to pass column children
+        // under a 'columns' key on a 2-slot columns block, so the rendered
+        // output had empty <div></div> pairs where the three features
+        // should have been. Lock the shape via a content assertion.
+        $this->post('/lab/use/landing');
+        $preview = $this->get('/preview');
+
+        $preview->assertOk();
+        $preview->assertSeeText('Code-defined blocks');
+        $preview->assertSeeText('Drop-in install');
+        $preview->assertSeeText('Variables aware');
+    }
+
+    public function test_status_template_panel_columns_actually_render_their_content(): void
+    {
+        // Same shape bug also lived in the Status template.
+        $this->post('/lab/use/status');
+        $preview = $this->get('/preview');
+
+        $preview->assertOk();
+        $preview->assertSeeText('Operational');
+        $preview->assertSeeText('Dashboard');
+        $preview->assertSeeText('Email delivery');
+    }
 }
