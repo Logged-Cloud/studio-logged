@@ -47,7 +47,18 @@ Route::get('/playground', function (Request $request) {
         return redirect()->route('playground');
     }
     $page = studio_session_page($request);
-    return view('playground', ['pageId' => $page->id]);
+    return view('playground', [
+        'pageId'    => $page->id,
+        'templates' => \App\PageStudio\DemoTemplates::all(),
+        // Curated demo routes that pair a real Eloquent model with a
+        // wired node graph · listed in the playground topnav so visitors
+        // can jump to a working example without leaving the page.
+        'demoRoutes' => [
+            ['label' => 'Article · /docs/{slug}',       'url' => '/docs/getting-started'],
+            ['label' => 'Product · /products/{sku}',    'url' => '/products/STUDIO-PRO'],
+            ['label' => 'Customer · /customers/{email}','url' => '/customers/ada@example.com'],
+        ],
+    ]);
 })->name('playground');
 
 Route::get('/preview', function (Request $request) {
