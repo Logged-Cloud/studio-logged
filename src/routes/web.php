@@ -1,6 +1,7 @@
 <?php
 
 use App\PageStudio\DemoTemplates;
+use App\PageStudio\HomePage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use LoggedCloud\PageStudio\Models\Page;
@@ -31,9 +32,20 @@ function studio_session_page(Request $request, ?string $templateSlug = null): Pa
 }
 }
 
-Route::get('/', fn () => view('welcome'))->name('home');
+Route::get('/', function () {
+    return view('welcome', ['homePage' => HomePage::get()]);
+})->name('home');
 
 Route::get('/playground', function (Request $request) {
+    // Visitor can land on /playground?seed=home to fork the curated home
+    // page into their session and play with it.
+    if ($request->query('seed') === 'home') {
+        $blocks = \App\PageStudio\DemoTemplates::home();
+        $page   = studio_session_page($request);
+        $page->blocks = $blocks;
+        $page->save();
+        return redirect()->route('playground');
+    }
     $page = studio_session_page($request);
     return view('playground', ['pageId' => $page->id]);
 })->name('playground');

@@ -103,6 +103,52 @@ class DemoTemplates
     }
 
     /**
+     * The dogfooded home page · what visitors see at studio.logged.cloud/
+     * is itself a page-studio Page rendered through PageRenderer. Uses
+     * the v2.3+ animated_text block in the hero so the home page shows
+     * off a feature only weeks-old.
+     */
+    public static function home(): array
+    {
+        return [
+            self::block('hero', [
+                'heading'    => 'A visual page-builder for Laravel',
+                'subheading' => 'Drop in via composer, mount a Livewire component, ship pages your editors can actually edit.',
+                'cta_label'  => 'Open the playground',
+                'cta_href'   => '/playground',
+            ]),
+            self::block('heading', ['text' => 'Built for', 'level' => 'h2', 'align' => 'center']),
+            self::block('animated_text', [
+                'items' => "#7C5CFF: Marketing teams\n#0EA5E9: Documentation sites\n#EC4899: Email campaigns\n#10B981: Onboarding flows\n#F59E0B: Internal tools",
+                'mode'  => 'roller-up',
+                'size'  => 'display',
+                'color' => '#7C5CFF',
+                'pause' => 2200,
+            ]),
+            self::block('columns-3', [], [
+                'left' => [
+                    self::block('heading', ['text' => 'Drop-in install', 'level' => 'h3', 'align' => 'left']),
+                    self::block('paragraph', ['text' => 'composer require, one migration, mount a Livewire component. No second service to operate.']),
+                ],
+                'middle' => [
+                    self::block('heading', ['text' => 'Real-time collab', 'level' => 'h3', 'align' => 'left']),
+                    self::block('paragraph', ['text' => 'Block locks, presence chips, review threads, activity feed. Polling-based.']),
+                ],
+                'right' => [
+                    self::block('heading', ['text' => 'Code-defined extensions', 'level' => 'h3', 'align' => 'left']),
+                    self::block('paragraph', ['text' => 'Drop a PHP class into your app and it shows up in the palette next reload.']),
+                ],
+            ]),
+            self::block('quote', [
+                'text'   => 'This is the page itself, built and rendered with page-studio. Open it in the playground to see the block tree.',
+                'author' => 'studio.logged.cloud',
+            ]),
+            self::block('button', ['label' => 'Edit this page in the playground', 'href' => '/playground?seed=home', 'variant' => 'primary']),
+            self::block('paragraph', ['text' => 'logged-cloud/page-studio · FSL-1.1-MIT licensed · converts to plain MIT two years after each release.']),
+        ];
+    }
+
+    /**
      * Build a block dict with a fresh unique id. Layout blocks pass their
      * `children` slot tree through the third arg.
      */
