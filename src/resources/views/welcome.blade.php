@@ -52,6 +52,24 @@
             color: var(--ink-dim); font-size: .85rem;
         }
         footer.foot a { color: var(--ink-dim); }
+
+        /* Responsive override · the package's columns / columns-3 blocks
+           emit fixed grid-template-columns inline. On phone the 2-up and
+           3-up grids stay multi-column and crush the copy. Force a single
+           column on narrow viewports until v2.4.1 lands a responsive
+           columns block at the package level. */
+        @media (max-width: 640px) {
+            main.canvas div[style*="display:grid"] {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+            .topnav { padding: .75rem 1rem; gap: .5rem; }
+            .topnav nav a { padding: .35rem .65rem; font-size: .8rem; }
+            .topnav nav a:not(.cta) { display: none; }
+            .topnav nav a.cta { padding: .45rem .85rem; }
+            main.canvas { padding: 2rem 1.25rem 4rem; }
+            .dogfood-banner { font-size: .8rem; padding: .55rem 1rem; }
+        }
     </style>
 </head>
 <body>
