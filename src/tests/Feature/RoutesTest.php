@@ -45,4 +45,25 @@ class RoutesTest extends TestCase
         $follow = $this->get('/preview');
         $follow->assertSeeText('Why we built page-studio');
     }
+
+    public function test_landing_is_a_page_studio_page_rendered_through_PageRenderer(): void
+    {
+        $response = $this->get('/');
+        $response->assertOk();
+        // Hero heading from DemoTemplates::home()
+        $response->assertSeeText('A visual page-builder for Laravel');
+        // Animated text reel (Alpine x-data carries the phrases as JSON)
+        $response->assertSee('Marketing teams', false);
+        // Dogfood banner copy
+        $response->assertSee('This page is itself built with', false);
+    }
+
+    public function test_playground_seed_home_forks_the_dogfooded_page(): void
+    {
+        $response = $this->get('/playground?seed=home');
+        $response->assertRedirect('/playground');
+
+        $preview = $this->get('/preview');
+        $preview->assertSeeText('A visual page-builder for Laravel');
+    }
 }
