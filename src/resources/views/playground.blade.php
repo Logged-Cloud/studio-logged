@@ -26,36 +26,21 @@
     <div class="topnav">
         <a class="brand" href="/">Studio Logged</a>
         <div class="group">
-            {{-- Page switcher · picking a template POSTs to /lab/use/{slug}
-                 which swaps the session page's block tree in-place. The
-                 form's action is set just-in-time from the select value
-                 so we can keep the single CSRF token here. --}}
-            @if (! empty($templates))
-                <form method="POST" id="ps-template-form" action="" style="display:inline">
-                    @csrf
-                    <select onchange="
-                                if (! this.value) return;
-                                document.getElementById('ps-template-form').action = '/lab/use/' + this.value;
-                                document.getElementById('ps-template-form').submit();
-                            "
-                            style="background:#0E1116; color:#E6EDF3; border:1px solid #30363D; padding:.4rem .55rem; border-radius:.4rem; font-size:.85rem">
-                        <option value="">Load template…</option>
-                        @foreach ($templates as $slug => $tpl)
-                            <option value="{{ $slug }}">{{ $tpl['name'] ?? $slug }}</option>
-                        @endforeach
-                    </select>
-                </form>
-            @endif
-
-            {{-- Curated demo routes · open in a new tab so the visitor
-                 can see a working route-variable -> Model finder -> page
-                 flow without losing their playground session. --}}
-            @if (! empty($demoRoutes))
-                <select onchange="if (this.value) { window.open(this.value, '_blank'); this.value = ''; }"
+            {{-- Page picker · switches the editor's bound page. Picking
+                 a curated demo (Article / Product / Customer) reloads
+                 the playground with ?page=N so the page-builder mounts
+                 against that page row directly · same surface used to
+                 view the live route, only here it's editable. The
+                 first option goes back to the visitor's own session
+                 page. --}}
+            @if (! empty($pages))
+                <select onchange="if (this.value) window.location.href = '/playground?page=' + this.value; else window.location.href = '/playground';"
                         style="background:#0E1116; color:#E6EDF3; border:1px solid #30363D; padding:.4rem .55rem; border-radius:.4rem; font-size:.85rem">
-                    <option value="">Open demo route…</option>
-                    @foreach ($demoRoutes as $r)
-                        <option value="{{ $r['url'] }}">{{ $r['label'] }}</option>
+                    <option value="" {{ $currentPageKind === 'session' ? 'selected' : '' }}>My session page</option>
+                    @foreach ($pages as $p)
+                        <option value="{{ $p['id'] }}" {{ ($currentPageKind === 'route' && $pageId === $p['id']) ? 'selected' : '' }}>
+                            {{ $p['label'] }}
+                        </option>
                     @endforeach
                 </select>
             @endif

@@ -46,18 +46,46 @@ Route::get('/playground', function (Request $request) {
         $page->save();
         return redirect()->route('playground');
     }
-    $page = studio_session_page($request);
+
+    // Build the picker · one entry per curated demo route (Article /
+    // Product / Customer). Each entry resolves to a real Page row so
+    // the editor can mount against it directly with no template
+    // copying, no fork-into-session, no double round-trip.
+    $demoPages = [];
+    $demoRouteNames = [
+        'docs.show'      => 'Article · /docs/{slug}',
+        'products.show'  => 'Product · /products/{sku}',
+        'customers.show' => 'Customer · /customers/{email}',
+    ];
+    foreach ($demoRouteNames as $routeName => $label) {
+        $rd = \LoggedCloud\PageStudio\Models\RouteDefinition::where('name', $routeName)->first();
+        if (! $rd) continue;
+        $pg = \LoggedCloud\PageStudio\Models\Page::where('route_id', $rd->id)->first();
+        if (! $pg) continue;
+        $demoPages[] = ['id' => $pg->id, 'label' => $label, 'route' => $rd->path_template];
+    }
+
+    // Picker selection · ?page=N points at one of the demo pages we
+    // just discovered. Unknown / missing values silently fall back to
+    // the visitor's session page so a stale bookmark never 404s.
+    $requestedPageId = (int) $request->query('page');
+    $editedPage      = null;
+    $currentKind     = 'session';
+    if ($requestedPageId > 0) {
+        foreach ($demoPages as $entry) {
+            if ($entry['id'] === $requestedPageId) {
+                $editedPage  = \LoggedCloud\PageStudio\Models\Page::find($requestedPageId);
+                $currentKind = 'route';
+                break;
+            }
+        }
+    }
+    $editedPage ??= studio_session_page($request);
+
     return view('playground', [
-        'pageId'    => $page->id,
-        'templates' => \App\PageStudio\DemoTemplates::all(),
-        // Curated demo routes that pair a real Eloquent model with a
-        // wired node graph · listed in the playground topnav so visitors
-        // can jump to a working example without leaving the page.
-        'demoRoutes' => [
-            ['label' => 'Article · /docs/{slug}',       'url' => '/docs/getting-started'],
-            ['label' => 'Product · /products/{sku}',    'url' => '/products/STUDIO-PRO'],
-            ['label' => 'Customer · /customers/{email}','url' => '/customers/ada@example.com'],
-        ],
+        'pageId'          => $editedPage->id,
+        'pages'           => $demoPages,
+        'currentPageKind' => $currentKind,
     ]);
 })->name('playground');
 

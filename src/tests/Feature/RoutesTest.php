@@ -31,28 +31,48 @@ class RoutesTest extends TestCase
         $response->assertSee('data-component="page-studio.page-builder"', false);
     }
 
-    public function test_playground_topnav_offers_a_template_picker_so_visitors_can_change_the_page(): void
+    public function test_playground_topnav_picker_lists_the_demo_pages_so_the_editor_can_be_pointed_at_them(): void
     {
-        // The picker is what closes the "from the playground we should be
-        // able to change the page" UX gap · without it the only way to
-        // swap content was a separate /lab visit.
+        // The picker rebinds the editor to a different Page row · no
+        // template copying, no fork-into-session. Each entry is a real
+        // Page id discovered from the seeded demo routes.
+        $this->artisan('db:seed', ['--class' => \Database\Seeders\ModelFinderDemoSeeder::class]);
+        $this->artisan('db:seed', ['--class' => \Database\Seeders\ModelFinderRouteSeeder::class]);
+
         $response = $this->get('/playground');
 
         $response->assertOk();
-        $response->assertSee('Load template…');
-        $response->assertSee('Product landing'); // one of the seeded templates
-        $response->assertSee('action=""', false); // form is rendered, action set client-side from the picked slug
+        $response->assertSee('My session page');
+        $response->assertSee('Article · /docs/{slug}');
+        $response->assertSee('Product · /products/{sku}');
+        $response->assertSee('Customer · /customers/{email}');
     }
 
-    public function test_playground_topnav_offers_demo_route_shortcuts(): void
+    public function test_playground_with_page_query_param_mounts_against_that_demo_page(): void
     {
-        $response = $this->get('/playground');
+        $this->artisan('db:seed', ['--class' => \Database\Seeders\ModelFinderDemoSeeder::class]);
+        $this->artisan('db:seed', ['--class' => \Database\Seeders\ModelFinderRouteSeeder::class]);
+
+        $rd     = \LoggedCloud\PageStudio\Models\RouteDefinition::where('name', 'products.show')->firstOrFail();
+        $page   = \LoggedCloud\PageStudio\Models\Page::where('route_id', $rd->id)->firstOrFail();
+
+        $response = $this->get('/playground?page='.$page->id);
 
         $response->assertOk();
-        $response->assertSee('Open demo route…');
-        $response->assertSee('/docs/getting-started');
-        $response->assertSee('/products/STUDIO-PRO');
-        $response->assertSee('/customers/ada@example.com');
+        // The Livewire page-builder mounts with the requested page id ·
+        // it lives inside the wire:snapshot JSON which is HTML-encoded,
+        // so let Laravel escape our needle (default) and match the
+        // encoded form.
+        $response->assertSee('"pageId":'.$page->id);
+    }
+
+    public function test_playground_unknown_page_id_falls_back_to_the_session_page(): void
+    {
+        // Stale bookmark / hand-edited URL · should never 404 the
+        // playground.
+        $response = $this->get('/playground?page=999999');
+
+        $response->assertOk();
     }
 
     public function test_preview_renders_the_session_block_tree(): void
