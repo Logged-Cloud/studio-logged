@@ -26,6 +26,40 @@
     <div class="topnav">
         <a class="brand" href="/">Studio Logged</a>
         <div class="group">
+            {{-- Page switcher · picking a template POSTs to /lab/use/{slug}
+                 which swaps the session page's block tree in-place. The
+                 form's action is set just-in-time from the select value
+                 so we can keep the single CSRF token here. --}}
+            @if (! empty($templates))
+                <form method="POST" id="ps-template-form" action="" style="display:inline">
+                    @csrf
+                    <select onchange="
+                                if (! this.value) return;
+                                document.getElementById('ps-template-form').action = '/lab/use/' + this.value;
+                                document.getElementById('ps-template-form').submit();
+                            "
+                            style="background:#0E1116; color:#E6EDF3; border:1px solid #30363D; padding:.4rem .55rem; border-radius:.4rem; font-size:.85rem">
+                        <option value="">Load template…</option>
+                        @foreach ($templates as $slug => $tpl)
+                            <option value="{{ $slug }}">{{ $tpl['name'] ?? $slug }}</option>
+                        @endforeach
+                    </select>
+                </form>
+            @endif
+
+            {{-- Curated demo routes · open in a new tab so the visitor
+                 can see a working route-variable -> Model finder -> page
+                 flow without losing their playground session. --}}
+            @if (! empty($demoRoutes))
+                <select onchange="if (this.value) { window.open(this.value, '_blank'); this.value = ''; }"
+                        style="background:#0E1116; color:#E6EDF3; border:1px solid #30363D; padding:.4rem .55rem; border-radius:.4rem; font-size:.85rem">
+                    <option value="">Open demo route…</option>
+                    @foreach ($demoRoutes as $r)
+                        <option value="{{ $r['url'] }}">{{ $r['label'] }}</option>
+                    @endforeach
+                </select>
+            @endif
+
             <a href="/lab">Templates</a>
             <a href="/preview" target="_blank">Preview ↗</a>
             <form method="POST" action="/reset" style="display:inline">@csrf

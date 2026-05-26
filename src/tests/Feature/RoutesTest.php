@@ -31,6 +31,30 @@ class RoutesTest extends TestCase
         $response->assertSee('data-component="page-studio.page-builder"', false);
     }
 
+    public function test_playground_topnav_offers_a_template_picker_so_visitors_can_change_the_page(): void
+    {
+        // The picker is what closes the "from the playground we should be
+        // able to change the page" UX gap · without it the only way to
+        // swap content was a separate /lab visit.
+        $response = $this->get('/playground');
+
+        $response->assertOk();
+        $response->assertSee('Load template…');
+        $response->assertSee('Product landing'); // one of the seeded templates
+        $response->assertSee('action=""', false); // form is rendered, action set client-side from the picked slug
+    }
+
+    public function test_playground_topnav_offers_demo_route_shortcuts(): void
+    {
+        $response = $this->get('/playground');
+
+        $response->assertOk();
+        $response->assertSee('Open demo route…');
+        $response->assertSee('/docs/getting-started');
+        $response->assertSee('/products/STUDIO-PRO');
+        $response->assertSee('/customers/ada@example.com');
+    }
+
     public function test_preview_renders_the_session_block_tree(): void
     {
         $response = $this->withSession([])->get('/preview');
