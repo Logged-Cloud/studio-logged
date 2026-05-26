@@ -11,10 +11,17 @@
         :root { --bg:#0E1116; --surface:#161B22; --surface-2:#1F2632; --accent:#7C5CFF; --accent-hover:#6B4BFF; --ink:#E6EDF3; --ink-dim:#8B949E; --line:#30363D; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; }
-        .topnav { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--line); }
+        .topnav { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1.25rem; background: var(--surface); border-bottom: 1px solid var(--line); gap: .5rem; flex-wrap: wrap; }
         .topnav a { color: var(--ink); text-decoration: none; font-weight: 600; }
-        .topnav .actions { display: flex; gap: .5rem; }
+        .topnav .actions { display: flex; gap: .35rem; flex-wrap: wrap; }
         .topnav .actions a { font-weight: 500; background: transparent; border: 1px solid var(--line); padding: .4rem .75rem; border-radius: .4rem; font-size: .85rem; }
+        @media (max-width: 640px) {
+            .topnav { padding: .55rem .75rem; }
+            .topnav .actions a { padding: .3rem .55rem; font-size: .75rem; }
+            main { padding: 2rem 1.25rem 4rem; }
+            h1 { font-size: 1.5rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
         main { max-width: 64rem; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
         h1 { font-size: 2rem; margin-bottom: .5rem; }
         .lede { color: var(--ink-dim); margin-bottom: 2.5rem; max-width: 38rem; line-height: 1.6; }
