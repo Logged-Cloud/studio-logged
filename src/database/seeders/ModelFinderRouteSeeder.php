@@ -39,6 +39,95 @@ class ModelFinderRouteSeeder extends Seeder
         $this->ensureProductsRoute($sku);
         $this->ensureCustomersRoute($email);
         $this->ensureShowcaseRoute();
+        $this->ensureSettingSocketsRoute();
+    }
+
+    // ─── /showcase/setting-sockets · selects + numbers wired into settings ──
+
+    protected function ensureSettingSocketsRoute(): void
+    {
+        $route = RouteDefinition::firstOrCreate(
+            ['name' => 'showcase.setting-sockets'],
+            ['method' => 'GET', 'path_template' => '/showcase/setting-sockets', 'description' => 'Demo · every setting is a socket. Constants drive a Math node\'s op, a Format-Date format string, and an image filter amount.'],
+        );
+        if ($route->segments()->count() === 0) {
+            RouteSegment::create(['route_id' => $route->id, 'position' => 0, 'kind' => 'literal', 'literal_value' => 'showcase']);
+            RouteSegment::create(['route_id' => $route->id, 'position' => 1, 'kind' => 'literal', 'literal_value' => 'setting-sockets']);
+        }
+
+        $this->ensurePage($route->id, [
+            $this->block('hero', [
+                'heading'    => 'Setting sockets',
+                'subheading' => 'Every settable field carries a wireable pip · selects, numbers, format strings, you name it. Three demos below · all the parameters come from upstream nodes, not the right-hand panel.',
+                'cta_label'  => '',
+                'cta_href'   => '',
+                'align'      => 'left',
+            ]),
+            $this->block('heading',   ['text' => '1 · Math op wired from a constant', 'level' => 'h2', 'align' => 'left']),
+            $this->block('paragraph', ['text' => '7 {{ op_glyph }} 3 = {{ math_result }} · the math node\'s `op` setting is a select dropdown, BUT the value is being driven by a Constant wired into the socket instead.']),
+
+            $this->block('heading',   ['text' => '2 · Date format wired from a constant', 'level' => 'h2', 'align' => 'left']),
+            $this->block('paragraph', ['text' => 'Today rendered as: {{ today_pretty }} · the format-date node\'s `format` setting is a plain text field, wired in from a Constant carrying "l, F j Y".']),
+
+            $this->block('heading',   ['text' => '3 · Image filter amount wired from a route variable', 'level' => 'h2', 'align' => 'left']),
+            $this->block('paragraph', ['text' => 'The same solid image, but the hue-rotate amount is a math result fed back into the filter\'s `value` setting. Reload to see different angles.']),
+            $this->block('image',     ['src' => '{{ wired_filter_image }}', 'alt' => 'Solid image with wire-driven hue rotate']),
+        ]);
+
+        $this->ensureGraph($route->id, $this->settingSocketsGraph());
+    }
+
+    protected function settingSocketsGraph(): array
+    {
+        return [
+            'nodes' => [
+                // Demo 1 · wire a Constant into the math node's `op` select setting.
+                $this->node('const-a',    'source.constant', ['value' => '7'],  0,    20),
+                $this->node('const-b',    'source.constant', ['value' => '3'],  0,   100),
+                $this->node('const-op',   'source.constant', ['value' => '*'],  0,   180),
+                $this->node('const-glyph','source.constant', ['value' => '×'],  0,   260),
+                $this->node('math',       'transform.math',  ['op' => '+'],     320,   60),  // static fallback = +, wire overrides to *
+                $this->node('out-result', 'output',          ['name' => 'math_result'],  720,  60),
+                $this->node('out-glyph',  'output',          ['name' => 'op_glyph'],     720, 260),
+
+                // Demo 2 · wire a Constant into the format_date node's `format` text setting.
+                $this->node('now',        'source.now',           [],                                                  0, 420),
+                $this->node('const-fmt',  'source.constant',      ['value' => 'l, F j Y'],                             0, 500),
+                $this->node('fmt-date',   'transform.format_date',['format' => 'Y-m-d', 'offset_amount' => 0, 'offset_unit' => 'days'], 320, 460),
+                $this->node('out-today',  'output',               ['name' => 'today_pretty'],                          720, 460),
+
+                // Demo 3 · math result wired into image.hue_rotate's `value` setting.
+                // Plus a Color constant wired into image.solid's `color` setting.
+                $this->node('const-30',   'source.constant',  ['value' => '30'],   0, 700),
+                $this->node('const-4',    'source.constant',  ['value' => '4'],    0, 780),
+                $this->node('mul',        'transform.math',   ['op' => '*'],       320, 740),
+                $this->node('col',        'source.color',     ['color' => '#2C66E8'], 0, 880),
+                $this->node('solid',      'image.solid',      ['color' => '#000000', 'width' => 600, 'height' => 220], 320, 880),
+                $this->node('hue',        'image.hue_rotate', ['value' => '0'],    520, 740),
+                $this->node('out-image',  'output',           ['name' => 'wired_filter_image'], 720, 740),
+            ],
+            'edges' => [
+                // Demo 1
+                $this->edge('const-a',     'value', 'math',       'a'),
+                $this->edge('const-b',     'value', 'math',       'b'),
+                $this->edge('const-op',    'value', 'math',       'op'),       // SELECT setting wired!
+                $this->edge('math',        'value', 'out-result', 'value'),
+                $this->edge('const-glyph', 'value', 'out-glyph',  'value'),
+
+                // Demo 2
+                $this->edge('now',         'value', 'fmt-date',   'value'),
+                $this->edge('const-fmt',   'value', 'fmt-date',   'format'),   // TEXT setting wired!
+                $this->edge('fmt-date',    'value', 'out-today',  'value'),
+
+                // Demo 3
+                $this->edge('const-30',    'value', 'mul',        'a'),
+                $this->edge('const-4',     'value', 'mul',        'b'),
+                $this->edge('col',         'color', 'solid',      'color'),    // COLOR setting wired!
+                $this->edge('solid',       'image', 'hue',        'image'),
+                $this->edge('mul',         'value', 'hue',        'value'),    // NUMBER setting wired!
+                $this->edge('hue',         'image', 'out-image',  'value'),
+            ],
+        ];
     }
 
     protected function ensureVariable(string $name, string $type, array $extra = []): Variable
@@ -320,6 +409,21 @@ class ModelFinderRouteSeeder extends Seeder
                     $this->block('image',     ['src' => '{{ dramatic }}', 'alt' => 'Dramatic filter chain']),
                 ],
             ]),
+            $this->block('divider', ['style' => 'solid']),
+            $this->block('heading',   ['text' => 'Generative image nodes', 'level' => 'h2', 'align' => 'left']),
+            $this->block('paragraph', ['text' => 'No source URL · just a color, a solid-image builder, and a hue-rotate whose degrees are wired in from a math node. 30 × 6 = 180°.']),
+            $this->block('columns', [], [
+                'left' => [
+                    $this->block('heading',   ['text' => 'Solid → hue-rotate', 'level' => 'h3', 'align' => 'left']),
+                    $this->block('paragraph', ['text' => 'source.color → image.solid → image.hue_rotate (degrees from math)']),
+                    $this->block('image',     ['src' => '{{ hue_shifted }}', 'alt' => 'Color piped through solid + hue rotate']),
+                ],
+                'right' => [
+                    $this->block('heading',   ['text' => 'Solid + opacity', 'level' => 'h3', 'align' => 'left']),
+                    $this->block('paragraph', ['text' => 'source.color → image.solid → image.opacity 0.7']),
+                    $this->block('image',     ['src' => '{{ cool_solid }}', 'alt' => 'Faded solid color']),
+                ],
+            ]),
         ]);
 
         $this->ensureGraph($route->id, $this->showcaseGraph());
@@ -330,27 +434,51 @@ class ModelFinderRouteSeeder extends Seeder
         $url = 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80';
         return [
             'nodes' => [
-                // Single source feeds every branch.
+                // ── Real-image branches ──────────────────────────
                 $this->node('img-src',     'image.source',     ['url' => $url], 0, 360),
 
-                // Branch A: original (passthrough)
-                $this->node('out-original','output',           ['name' => 'original'],  1320, 60),
+                $this->node('out-original','output',           ['name' => 'original'],  1640, 60),
 
-                // Branch B: sepia only
+                // Sepia only
                 $this->node('sepia-only',  'image.sepia',      ['value' => '1.0'], 320, 220),
-                $this->node('out-sepia',   'output',           ['name' => 'sepia'], 1320, 220),
+                $this->node('out-sepia',   'output',           ['name' => 'sepia'], 1640, 220),
 
-                // Branch C: vintage chain · brightness → sepia → blur
+                // Vintage chain · brightness → sepia → blur
                 $this->node('vin-bright',  'image.brightness', ['value' => '1.1'], 320, 380),
                 $this->node('vin-sepia',   'image.sepia',      ['value' => '0.7'], 520, 380),
                 $this->node('vin-blur',    'image.blur',       ['value' => '0.5'], 720, 380),
-                $this->node('out-vintage', 'output',           ['name' => 'vintage'], 1320, 380),
+                $this->node('out-vintage', 'output',           ['name' => 'vintage'], 1640, 380),
 
-                // Branch D: dramatic chain · brightness ↓ → contrast ↑ → grayscale
+                // Dramatic chain · brightness ↓ → contrast ↑ → grayscale
                 $this->node('dr-bright',   'image.brightness', ['value' => '0.85'], 320, 540),
                 $this->node('dr-contrast', 'image.contrast',   ['value' => '1.3'],  520, 540),
                 $this->node('dr-gray',     'image.grayscale',  ['value' => '1.0'],  720, 540),
-                $this->node('out-dramatic','output',           ['name' => 'dramatic'], 1320, 540),
+                $this->node('out-dramatic','output',           ['name' => 'dramatic'], 1640, 540),
+
+                // ── NEW · color + solid-image + wire-driven hue ──
+                // A color constant pipes into a solid-image builder,
+                // whose output feeds a hue-rotate whose DEGREES are
+                // also wired in from a math node · everything below
+                // the line is the graph's own arithmetic.
+                $this->node('col-red',     'source.color',     ['color' => '#e11d48'], 0, 760),
+                $this->node('solid-img',   'image.solid',      ['color' => '#000000', 'width' => 600, 'height' => 220], 320, 760),
+
+                // Two constants + a math op produce the rotation
+                // angle dynamically · 30 * 6 = 180deg.
+                $this->node('const-30',    'source.constant',  ['value' => '30'],  0, 900),
+                $this->node('const-6',     'source.constant',  ['value' => '6'],   0, 1000),
+                $this->node('math-mul',    'transform.math',   ['op' => '*'],     320, 940),
+                $this->node('hue-shift',   'image.hue_rotate', ['value' => '0'],  720, 760),
+                $this->node('out-shift',   'output',           ['name' => 'hue_shifted'], 1640, 760),
+
+                // ── Bonus · gradient between two colors ─────────
+                // image.solid renders only one color, but two solids
+                // composed via opacity give a "fake gradient" feel ·
+                // shows authors how to stack the same node twice.
+                $this->node('col-blue',    'source.color',     ['color' => '#2563eb'], 0, 1160),
+                $this->node('solid-blue',  'image.solid',      ['color' => '#000000', 'width' => 600, 'height' => 220], 320, 1160),
+                $this->node('blue-faded',  'image.opacity',    ['value' => '0.7'],  520, 1160),
+                $this->node('out-cool',    'output',           ['name' => 'cool_solid'], 1640, 1160),
             ],
             'edges' => [
                 // Original → output
@@ -371,6 +499,19 @@ class ModelFinderRouteSeeder extends Seeder
                 $this->edge('dr-bright',  'image', 'dr-contrast', 'image'),
                 $this->edge('dr-contrast','image', 'dr-gray',     'image'),
                 $this->edge('dr-gray',    'image', 'out-dramatic','value'),
+
+                // NEW: color → solid → hue with wired degrees
+                $this->edge('col-red',    'color', 'solid-img', 'color'),
+                $this->edge('solid-img',  'image', 'hue-shift', 'image'),
+                $this->edge('const-30',   'value', 'math-mul',  'a'),
+                $this->edge('const-6',    'value', 'math-mul',  'b'),
+                $this->edge('math-mul',   'value', 'hue-shift', 'value'),
+                $this->edge('hue-shift',  'image', 'out-shift', 'value'),
+
+                // Bonus: faded blue solid
+                $this->edge('col-blue',   'color', 'solid-blue', 'color'),
+                $this->edge('solid-blue', 'image', 'blue-faded', 'image'),
+                $this->edge('blue-faded', 'image', 'out-cool',   'value'),
             ],
         ];
     }
