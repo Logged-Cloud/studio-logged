@@ -31,14 +31,18 @@ class DemoTemplates
                         'cta_label'  => 'Get started',
                         'cta_href'   => '#',
                     ]),
-                    self::block('columns', [], [
-                        'columns' => [
-                            [self::block('heading', ['text' => 'Code-defined blocks', 'level' => 'h3', 'align' => 'left']),
-                             self::block('paragraph', ['text' => 'Drop a PHP class into your app and it shows up in the palette next reload.'])],
-                            [self::block('heading', ['text' => 'Drop-in install', 'level' => 'h3', 'align' => 'left']),
-                             self::block('paragraph', ['text' => 'composer require, one migration, mount a Livewire component. No second service.'])],
-                            [self::block('heading', ['text' => 'Variables aware', 'level' => 'h3', 'align' => 'left']),
-                             self::block('paragraph', ['text' => 'Route segments, model lookups, transformation graphs all flow into the page renderer.'])],
+                    self::block('columns-3', [], [
+                        'left' => [
+                            self::block('heading', ['text' => 'Code-defined blocks', 'level' => 'h3', 'align' => 'left']),
+                            self::block('paragraph', ['text' => 'Drop a PHP class into your app and it shows up in the palette next reload.']),
+                        ],
+                        'middle' => [
+                            self::block('heading', ['text' => 'Drop-in install', 'level' => 'h3', 'align' => 'left']),
+                            self::block('paragraph', ['text' => 'composer require, one migration, mount a Livewire component. No second service.']),
+                        ],
+                        'right' => [
+                            self::block('heading', ['text' => 'Variables aware', 'level' => 'h3', 'align' => 'left']),
+                            self::block('paragraph', ['text' => 'Route segments, model lookups, transformation graphs all flow into the page renderer.']),
                         ],
                     ]),
                     self::block('quote', [
@@ -83,11 +87,24 @@ class DemoTemplates
                 'blocks'  => fn () => [
                     self::block('heading', ['text' => 'All systems operational', 'level' => 'h1', 'align' => 'center']),
                     self::block('paragraph', ['text' => 'Last checked just now. Green ticks mean all checks passed in the last 60 seconds.']),
-                    self::block('columns', [], [
-                        'columns' => [
-                            [self::block('panel', ['title' => 'API', 'tone' => 'success'], ['body' => [self::block('paragraph', ['text' => '✓ Operational'])]])],
-                            [self::block('panel', ['title' => 'Dashboard', 'tone' => 'success'], ['body' => [self::block('paragraph', ['text' => '✓ Operational'])]])],
-                            [self::block('panel', ['title' => 'Email delivery', 'tone' => 'warning'], ['body' => [self::block('paragraph', ['text' => '! Delayed · investigating'])]])],
+                    self::block('columns-3', [], [
+                        'left' => [
+                            self::block('panel', [], ['body' => [
+                                self::block('heading', ['text' => 'API', 'level' => 'h3', 'align' => 'left']),
+                                self::block('paragraph', ['text' => '✓ Operational']),
+                            ]]),
+                        ],
+                        'middle' => [
+                            self::block('panel', [], ['body' => [
+                                self::block('heading', ['text' => 'Dashboard', 'level' => 'h3', 'align' => 'left']),
+                                self::block('paragraph', ['text' => '✓ Operational']),
+                            ]]),
+                        ],
+                        'right' => [
+                            self::block('panel', [], ['body' => [
+                                self::block('heading', ['text' => 'Email delivery', 'level' => 'h3', 'align' => 'left']),
+                                self::block('paragraph', ['text' => '! Delayed · investigating']),
+                            ]]),
                         ],
                     ]),
                     self::block('heading', ['text' => 'Planned maintenance', 'level' => 'h2', 'align' => 'left']),
