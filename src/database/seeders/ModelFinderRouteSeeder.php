@@ -85,6 +85,30 @@ class ModelFinderRouteSeeder extends Seeder
             $this->block('heading',   ['text' => 'Noise',  'level' => 'h3', 'align' => 'left']),
             $this->block('paragraph', ['text' => 'Deterministic fractal noise via SVG feTurbulence. Change the seed in the graph to reroll.']),
             $this->block('image',     ['src' => '{{ proc_noise }}', 'alt' => 'Fractal noise']),
+
+            $this->block('divider', []),
+            $this->block('heading',   ['text' => 'Batch 2 · radial / brick / dots / wave', 'level' => 'h2', 'align' => 'left']),
+            $this->block('paragraph', ['text' => 'Four more geometry-style generators added in v2.9.1.']),
+            $this->block('columns', [], [
+                'left' => [
+                    $this->block('heading', ['text' => 'Radial gradient', 'level' => 'h3', 'align' => 'left']),
+                    $this->block('image',   ['src' => '{{ proc_radial }}', 'alt' => 'Radial gradient']),
+                ],
+                'right' => [
+                    $this->block('heading', ['text' => 'Brick', 'level' => 'h3', 'align' => 'left']),
+                    $this->block('image',   ['src' => '{{ proc_brick }}', 'alt' => 'Brick pattern']),
+                ],
+            ]),
+            $this->block('columns', [], [
+                'left' => [
+                    $this->block('heading', ['text' => 'Dots', 'level' => 'h3', 'align' => 'left']),
+                    $this->block('image',   ['src' => '{{ proc_dots }}', 'alt' => 'Dots pattern']),
+                ],
+                'right' => [
+                    $this->block('heading', ['text' => 'Wave', 'level' => 'h3', 'align' => 'left']),
+                    $this->block('image',   ['src' => '{{ proc_wave }}', 'alt' => 'Wave pattern']),
+                ],
+            ]),
         ]);
 
         $this->ensureGraph($route->id, $this->proceduralGraph());
@@ -112,6 +136,19 @@ class ModelFinderRouteSeeder extends Seeder
                 // Noise
                 $this->node('nz',       'image.noise',      ['seed' => 7, 'scale' => 0.65, 'octaves' => 3, 'imgWidth' => 600, 'imgHeight' => 220], 320, 500),
                 $this->node('out-nz',   'output',           ['name' => 'proc_noise'],        720,  500),
+
+                // Batch 2
+                $this->node('rg',       'image.radial_gradient', ['from' => '#F59E0B', 'to' => '#0E1116', 'width' => 600, 'height' => 220], 320,  620),
+                $this->node('out-rg',   'output',           ['name' => 'proc_radial'],       720,  620),
+
+                $this->node('br',       'image.brick',      ['brick' => '#8B4513', 'mortar' => '#1c1c1c', 'brickWidth' => 60, 'brickHeight' => 26, 'mortarSize' => 3, 'imgWidth' => 600, 'imgHeight' => 220], 320, 740),
+                $this->node('out-br',   'output',           ['name' => 'proc_brick'],        720,  740),
+
+                $this->node('dt',       'image.dots',       ['dot' => '#E11D48', 'background' => '#0E1116', 'radius' => 6, 'spacing' => 28, 'imgWidth' => 600, 'imgHeight' => 220], 320, 860),
+                $this->node('out-dt',   'output',           ['name' => 'proc_dots'],         720,  860),
+
+                $this->node('wv',       'image.wave',       ['a' => '#16A34A', 'b' => '#0E1116', 'frequency' => 4, 'amplitude' => 28, 'imgWidth' => 600, 'imgHeight' => 220], 320, 980),
+                $this->node('out-wv',   'output',           ['name' => 'proc_wave'],         720,  980),
             ],
             'edges' => [
                 // gradient (passthrough)
@@ -128,6 +165,12 @@ class ModelFinderRouteSeeder extends Seeder
                 // checkerboard + noise passthrough
                 $this->edge('ck',       'image', 'out-ck',    'value'),
                 $this->edge('nz',       'image', 'out-nz',    'value'),
+
+                // batch 2 passthroughs
+                $this->edge('rg',       'image', 'out-rg',    'value'),
+                $this->edge('br',       'image', 'out-br',    'value'),
+                $this->edge('dt',       'image', 'out-dt',    'value'),
+                $this->edge('wv',       'image', 'out-wv',    'value'),
             ],
         ];
     }

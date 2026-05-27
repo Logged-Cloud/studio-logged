@@ -2104,16 +2104,16 @@
         },
         {
             "name": "logged-cloud/page-studio",
-            "version": "v2.9.0",
+            "version": "v2.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Logged-Cloud/page-studio.git",
-                "reference": "050bd8adefe04481b6cfa8d97cc6022dc90b4360"
+                "reference": "8629592617fb122385438a9f368642a028a9ee82"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Logged-Cloud/page-studio/zipball/050bd8adefe04481b6cfa8d97cc6022dc90b4360",
-                "reference": "050bd8adefe04481b6cfa8d97cc6022dc90b4360",
+                "url": "https://api.github.com/repos/Logged-Cloud/page-studio/zipball/8629592617fb122385438a9f368642a028a9ee82",
+                "reference": "8629592617fb122385438a9f368642a028a9ee82",
                 "shasum": ""
             },
             "require": {
@@ -2171,10 +2171,10 @@
                 "route-builder"
             ],
             "support": {
-                "source": "https://github.com/Logged-Cloud/page-studio/tree/v2.9.0",
+                "source": "https://github.com/Logged-Cloud/page-studio/tree/v2.9.1",
                 "issues": "https://github.com/Logged-Cloud/page-studio/issues"
             },
-            "time": "2026-05-27T09:26:36+00:00"
+            "time": "2026-05-27T09:42:30+00:00"
         },
         {
             "name": "monolog/monolog",
