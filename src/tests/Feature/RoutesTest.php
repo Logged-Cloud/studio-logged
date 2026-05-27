@@ -48,6 +48,7 @@ class RoutesTest extends TestCase
         $response->assertSee('Customer · split + concat graph');
         $response->assertSee('Vintage photo · image pipeline graph');
         $response->assertSee('Setting sockets · every setting wired');
+        $response->assertSee('Procedural images · gradient/stripes/noise');
     }
 
     public function test_playground_with_page_query_param_mounts_against_that_demo_page(): void
