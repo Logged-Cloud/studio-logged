@@ -40,6 +40,96 @@ class ModelFinderRouteSeeder extends Seeder
         $this->ensureCustomersRoute($email);
         $this->ensureShowcaseRoute();
         $this->ensureSettingSocketsRoute();
+        $this->ensureProceduralRoute();
+    }
+
+    // ─── /showcase/procedural · gradient / stripes / checkerboard / noise
+
+    protected function ensureProceduralRoute(): void
+    {
+        $route = RouteDefinition::firstOrCreate(
+            ['name' => 'showcase.procedural'],
+            ['method' => 'GET', 'path_template' => '/showcase/procedural', 'description' => 'Procedural geometry-style image nodes · gradients, stripes, checkerboards, noise · all wirable.'],
+        );
+        if ($route->segments()->count() === 0) {
+            RouteSegment::create(['route_id' => $route->id, 'position' => 0, 'kind' => 'literal', 'literal_value' => 'showcase']);
+            RouteSegment::create(['route_id' => $route->id, 'position' => 1, 'kind' => 'literal', 'literal_value' => 'procedural']);
+        }
+
+        $this->ensurePage($route->id, [
+            $this->block('hero', [
+                'heading'    => 'Procedural images',
+                'subheading' => 'Four generators · gradient, stripes, checkerboard, noise. Each emits an SVG data URI that the filter chain (brightness / hue-rotate / blur / etc.) composes on top of.',
+                'cta_label'  => '', 'cta_href' => '', 'align' => 'left',
+            ]),
+            $this->block('columns', [], [
+                'left' => [
+                    $this->block('heading', ['text' => 'Gradient',  'level' => 'h3', 'align' => 'left']),
+                    $this->block('image',   ['src' => '{{ proc_gradient }}', 'alt' => 'Linear gradient']),
+                ],
+                'right' => [
+                    $this->block('heading', ['text' => 'Gradient → hue-rotate', 'level' => 'h3', 'align' => 'left']),
+                    $this->block('image',   ['src' => '{{ proc_gradient_rot }}', 'alt' => 'Gradient with hue-rotate']),
+                ],
+            ]),
+            $this->block('columns', [], [
+                'left' => [
+                    $this->block('heading', ['text' => 'Stripes',     'level' => 'h3', 'align' => 'left']),
+                    $this->block('image',   ['src' => '{{ proc_stripes }}', 'alt' => 'Stripes pattern']),
+                ],
+                'right' => [
+                    $this->block('heading', ['text' => 'Checkerboard', 'level' => 'h3', 'align' => 'left']),
+                    $this->block('image',   ['src' => '{{ proc_check }}', 'alt' => 'Checkerboard pattern']),
+                ],
+            ]),
+            $this->block('heading',   ['text' => 'Noise',  'level' => 'h3', 'align' => 'left']),
+            $this->block('paragraph', ['text' => 'Deterministic fractal noise via SVG feTurbulence. Change the seed in the graph to reroll.']),
+            $this->block('image',     ['src' => '{{ proc_noise }}', 'alt' => 'Fractal noise']),
+        ]);
+
+        $this->ensureGraph($route->id, $this->proceduralGraph());
+    }
+
+    protected function proceduralGraph(): array
+    {
+        return [
+            'nodes' => [
+                // Gradient (direct + rotated)
+                $this->node('gr',       'image.gradient',   ['from' => '#2C66E8', 'to' => '#E11D48', 'angle' => 45,  'width' => 600, 'height' => 220], 0,   20),
+                $this->node('out-gr',   'output',           ['name' => 'proc_gradient'],     720,   20),
+                $this->node('gr-rot',   'image.hue_rotate', ['value' => 90],                 320,  140),
+                $this->node('out-gr-r', 'output',           ['name' => 'proc_gradient_rot'], 720,  140),
+
+                // Stripes (with a wired angle from a constant)
+                $this->node('const-30',  'source.constant', ['value' => '30'],               0,   260),
+                $this->node('st',       'image.stripes',    ['a' => '#2C66E8', 'b' => '#0E1116', 'width' => 28, 'angle' => 0, 'imgWidth' => 600, 'imgHeight' => 220], 320, 260),
+                $this->node('out-st',   'output',           ['name' => 'proc_stripes'],      720,  260),
+
+                // Checkerboard with two colors
+                $this->node('ck',       'image.checkerboard', ['a' => '#16A34A', 'b' => '#0E1116', 'cell' => 24, 'imgWidth' => 600, 'imgHeight' => 220], 320, 380),
+                $this->node('out-ck',   'output',           ['name' => 'proc_check'],        720,  380),
+
+                // Noise
+                $this->node('nz',       'image.noise',      ['seed' => 7, 'scale' => 0.65, 'octaves' => 3, 'imgWidth' => 600, 'imgHeight' => 220], 320, 500),
+                $this->node('out-nz',   'output',           ['name' => 'proc_noise'],        720,  500),
+            ],
+            'edges' => [
+                // gradient (passthrough)
+                $this->edge('gr',       'image', 'out-gr',    'value'),
+
+                // gradient → hue rotate (90deg)
+                $this->edge('gr',       'image', 'gr-rot',    'image'),
+                $this->edge('gr-rot',   'image', 'out-gr-r',  'value'),
+
+                // stripes (angle wired from a Constant · 30deg)
+                $this->edge('const-30', 'value', 'st',        'angle'),
+                $this->edge('st',       'image', 'out-st',    'value'),
+
+                // checkerboard + noise passthrough
+                $this->edge('ck',       'image', 'out-ck',    'value'),
+                $this->edge('nz',       'image', 'out-nz',    'value'),
+            ],
+        ];
     }
 
     // ─── /showcase/setting-sockets · selects + numbers wired into settings ──

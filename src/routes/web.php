@@ -58,6 +58,7 @@ Route::get('/playground', function (Request $request) {
         'customers.show'            => 'Customer · split + concat graph',
         'showcase.vintage'          => 'Vintage photo · image pipeline graph',
         'showcase.setting-sockets'  => 'Setting sockets · every setting wired',
+        'showcase.procedural'       => 'Procedural images · gradient/stripes/noise',
     ];
     foreach ($demoRouteNames as $routeName => $label) {
         $rd = \LoggedCloud\PageStudio\Models\RouteDefinition::where('name', $routeName)->first();
