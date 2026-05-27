@@ -53,10 +53,11 @@ Route::get('/playground', function (Request $request) {
     // copying, no fork-into-session, no double round-trip.
     $demoPages = [];
     $demoRouteNames = [
-        'docs.show'        => 'Article · text manipulation graph',
-        'products.show'    => 'Product · math + currency graph',
-        'customers.show'   => 'Customer · split + concat graph',
-        'showcase.vintage' => 'Vintage photo · image pipeline graph',
+        'docs.show'                 => 'Article · text manipulation graph',
+        'products.show'             => 'Product · math + currency graph',
+        'customers.show'            => 'Customer · split + concat graph',
+        'showcase.vintage'          => 'Vintage photo · image pipeline graph',
+        'showcase.setting-sockets'  => 'Setting sockets · every setting wired',
     ];
     foreach ($demoRouteNames as $routeName => $label) {
         $rd = \LoggedCloud\PageStudio\Models\RouteDefinition::where('name', $routeName)->first();
